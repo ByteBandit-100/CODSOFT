@@ -29,17 +29,18 @@ if __name__ == "__main__":
 
         if choice not in [1, 2, 3, 4, 5]:
             print("Invalid choice.")
-            continue
 
         if choice == 5:
             print("Thank you for using Calculator!")
             break
 
         try:
-            a = float(input("Enter a number: "))
-            b = float(input("Enter another number: "))
-            calulate(a, b, choice)
+            if choice in [1, 2, 3, 4]:
+                a = float(input("Enter a number: "))
+                b = float(input("Enter another number: "))
+                calulate(a, b, choice)
         except ValueError:
             print("Please enter valid numbers.")
             input("\nPress Enter to continue...")
             continue
+        input("\nPress Enter to continue...")
