@@ -16,20 +16,6 @@ A simple command-line calculator built using Python that performs basic arithmet
 
 * Python 3.10 or later (required for `match-case`)
 
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/python-calculator.git
-cd python-calculator
-```
-
-Run the program:
-
-```bash
-python calculator.py
-```
 
 ## Usage
 
