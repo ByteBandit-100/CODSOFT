@@ -1,59 +1,75 @@
 import random
 
 options = {1: "rock", 2: "paper", 3: "scissors"}
-player_score = 0
-computer_score = 0
-counter=0
-def result(user_choice, computer_choice):
-    global player_score, computer_score, counter
+
+# update score
+def result(user_choice, computer_choice, scores):
+    player_score, computer_score = scores
     if user_choice == computer_choice:
-        player_score+=1
-        computer_score+=1
+        player_score += 1
+        computer_score += 1
     elif (user_choice == "rock" and computer_choice == "scissors") or \
-            (user_choice == "paper" and computer_choice == "rock") or \
-            (user_choice == "scissors" and computer_choice == "paper"):
-        player_score+=1
+         (user_choice == "paper" and computer_choice == "rock") or \
+         (user_choice == "scissors" and computer_choice == "paper"):
+        player_score += 1
     else:
-        computer_score+=1
-    counter+=1
+        computer_score += 1
     return player_score, computer_score
 
-while True:
-    print("Welcome to Rock Paper Scissors Game")
-    print("1. Rock")
-    print("2. Paper")
-    print("3. Scissors")
+# play/manage round function
+def play_round(rounds):
+    player_score, computer_score = 0, 0
+    counter = 0
 
-    try:
-        while True:
-            choice = str(input("Want to play(yes/no): "))
-            if choice.lower() == "no":
-                exit()
-            elif choice.lower() == "yes":
-                player_score = computer_score = counter = 0
+    while counter < rounds:
+        try:
+            player_choice = int(input("Enter your choice (1/2/3): "))
+            if player_choice not in options:
+                print("Invalid Choice. Try again.")
+                continue
 
+            bot_choice = options[random.randint(1, 3)]
+            player_choice = options[player_choice]
+
+            player_score, computer_score = result(player_choice, bot_choice, (player_score, computer_score))
+            counter += 1
+
+        except ValueError:
+            print("Invalid input type. Enter a number from 1 to 3.")
+
+    show_result(player_score, computer_score)
+
+#final result function
+def show_result(player_score, computer_score):
+    print("--------------- RESULT ---------------\n")
+    print("Your score is:", player_score)
+    print("Computer score is:", computer_score)
+    if player_score > computer_score:
+        print(f"You won! by {player_score - computer_score}")
+    elif computer_score > player_score:
+        print(f"Computer won! by {computer_score - player_score}")
+    else:
+        print("It's a tie!")
+    print("\n--------------------------------------")
+
+# main game function
+def main():
+    while True:
+        print("Welcome to Rock Paper Scissors Game")
+        print("1. Rock\n2. Paper\n3. Scissors")
+
+        choice = input("Want to play (yes/no): ").strip().lower()
+        if choice == "no":
+            print("Goodbye!")
+            break
+        elif choice == "yes":
+            try:
                 rounds = int(input("How many rounds you want to play: "))
-                for i in range(rounds):
-                    player_choice = int(input("Enter your choice(1/2/3): "))
-                    bot_guessed = random.randint(1,3)
-                    bot_choice = options[bot_guessed]
+                play_round(rounds)
+            except ValueError:
+                print("Invalid input. Enter a valid number of rounds.")
+        else:
+            print("Invalid Wish. Please type yes or no.")
 
-                    if player_choice in [1, 2, 3]:
-                        player_choice = options[player_choice]
-                        p_score, bot_score = result(player_choice, bot_choice)
-                        if rounds == counter:
-                            print("--------------- RESULT ---------------\n")
-                            print("Your score is:", p_score)
-                            print("Computer score is:", bot_score)
-                            print(f"You won! by {p_score-bot_score}") if (p_score>bot_score) else print(f"Computer won! by {bot_score-p_score}")
-                            print("\n--------------------------------------")
-
-
-                    else:
-                        print("Invalid Choice ")
-                        continue
-            else:
-                print("Invalid Wish. ")
-
-    except ValueError:
-        print("Invalid input type.\nEnter choice number from 1 to 3. ")
+if __name__ == "__main__":
+    main()
