@@ -24,26 +24,51 @@ def leftSideBar(rt, icons):
         add_hover_effect(btn, hover_bg="#42adf0", hover_fg="white")
         btn.pack(fill="x", pady=2)
 
-def rightSideBar(rt):
-    return None
+def rightSideBar(rt, rtc_ico):
+    #top cards
+    cards = tk.Frame(rt, bg="#FFFFFF")
+    cards.pack(fill="x", padx=25, pady=10)
 
-def homeWindow(rt, icons, app_icon):
+    stats = [
+        ("Total Contacts", "25"),
+        ("Today Added", "3"),
+        ("This Month", "18"),
+        ("Favorites", "7")
+    ]
+
+    for text, value in stats:
+        card = tk.Frame(cards, bg="#FFFFFF", width=130, height=100, pady=5, bd=0, relief="solid")
+        card.pack(side="left", padx=10)
+        card.pack_propagate(False)
+        culr="black"
+        match text:
+            case "Total Contacts": culr="#1b7dfa"
+            case "Today Added": culr="#a20cc3"
+            case "This Month": culr="#1b7dfa"
+            case "Favorites": culr="#a69e1a"
+        tk.Label(card,text=text,font=("poppins",9, "bold"),bg="#FFFFFF", fg=culr).pack(pady=2)
+        img = rtc_ico[text]
+        tk.Label(card, image= img, compound="center",bg="#FFFFFF").pack()
+
+        tk.Label(card,text=value,font=("poppins", 8, "bold"),bg="#FFFFFF").pack()
+
+def homeWindow(rt, icons,rtc_icons, app_icon):
     label = tk.Label(rt, text=" Contact Book", image=app_icon, bg="white",
                      compound="left", font=("poppins", 17))
-    label.pack(side="top")
+    label.pack(side="top", pady=5)
     leftSideBar(rt, icons)
-    rightSideBar(rt)
+    rightSideBar(rt, rtc_icons)
 
 if __name__ == "__main__":
 
     root = tk.Tk()
     root.title("Contact Book")
-    root.geometry("650x500")
+    root.geometry("850x550")
     root.configure(bg="white")
     app_icon = tk.PhotoImage(file="./images/contact1.png")
     root.iconphoto(False, app_icon)
-
-    icons = {
+    root.resizable(False, False)
+    left_icons = {
         "dashboard": imgLoad.load_png("./images/home.png", (24, 24), master=root),
         "add_contact": imgLoad.load_png("./images/add-user.png", (24, 24), master=root),
         "view": imgLoad.load_png("./images/list.png", (24, 24), master=root),
@@ -53,5 +78,11 @@ if __name__ == "__main__":
         "exit": imgLoad.load_png("./images/exit.png", (24, 24), master=root),
     }
 
-    homeWindow(root, icons, app_icon)
+    right_top_cards_icons = {
+        "Total Contacts": imgLoad.load_png("./images/group.png", (32, 32), master=root),
+        "Today Added": imgLoad.load_png("./images/calendar_115107.png", (32, 32), master=root),
+        "This Month": imgLoad.load_png("./images/icon-icons.png", (32, 32), master=root),
+        "Favorites": imgLoad.load_png("./images/star.png", (32, 32), master=root),
+    }
+    homeWindow(root, left_icons, right_top_cards_icons, app_icon)
     root.mainloop()
