@@ -1,53 +1,72 @@
 import sqlite3
 import tkinter as tk
-from logging import root
-
+import re
 
 def open_add_contact_window():
-    # New popup window
     form = tk.Toplevel()
     form.title("Add Contact")
     form.geometry("400x300")
     form.configure(bg="white")
+    form.resizable(False, False)
 
-    # Labels + Entry fields
-    tk.Label(form, text="Name:", bg="white").pack(pady=5, side="left")
-    name_entry = tk.Entry(form, width=50)
-    name_entry.pack(pady=5)
+    def add_row(parent, label_text, width=30):
+        row = tk.Frame(parent, bg="white")
+        row.pack(fill="x", padx=10, pady=5)
+        tk.Label(row, text=label_text, bg="white", anchor="w", width=12).pack(side="left")
+        entry = tk.Entry(row, width=width)
+        entry.pack(side="left", fill="x", expand=True)
+        return entry
 
-    tk.Label(form, text="Contact:", bg="white").pack(pady=5, side="left")
-    contact_entry = tk.Entry(form, width=50)
-    contact_entry.pack(pady=5)
+    name_entry = add_row(form, "Name: *", width=30)
+    contact_entry = add_row(form, "Contact: *", width=30)
+    gmail_entry = add_row(form, "Gmail:", width=30)
+    address_entry = add_row(form, "Address:", width=40)
 
-    tk.Label(form, text="Address (optional):", bg="white").pack(pady=5, side="left")
-    address_entry = tk.Entry(form, width=50)
-    address_entry.pack(pady=5)
+    message_label = tk.Label(form, text="", bg="white")
+    message_label.pack(pady=5)
 
-    # Save button
+    btn_row = tk.Frame(form, bg="white")
+    btn_row.pack(fill="x", pady=15)
+    save_btn = tk.Button(btn_row, text="Save", bg="white", fg="black", width=12)
+    save_btn.pack(side="left", padx=10)
+
     def save_contact():
-        name = name_entry.get()
-        contact = contact_entry.get()
-        address = address_entry.get()
-
-        # Store in separate DB file
-        conn = sqlite3.connect("contacts_data.db")   # different file
+        name = name_entry.get().strip()
+        contact = contact_entry.get().strip()
+        gmail = gmail_entry.get().strip()
+        address = address_entry.get().strip()
+        if not name:
+            message_label.config(text="Name is required!", fg="red")
+            return
+        if not re.match(r"^[A-Za-z\s]+$", name):
+            message_label.config(text="Name must contain only alphabets!", fg="red")
+            return
+        if not contact:
+            message_label.config(text="Contact number is required!", fg="red")
+            return
+        if not re.match(r"^\d{10}$", contact):
+            message_label.config(text="Contact must be only 10 DIGITS!", fg="red")
+            return
+        if gmail and not re.match(r"^[\w\.-]+@gmail\.com$", gmail):
+            message_label.config(text="Enter a valid Gmail address!", fg="red")
+            return
+        conn = sqlite3.connect("contacts_data.db")
         cur = conn.cursor()
         cur.execute("""
             CREATE TABLE IF NOT EXISTS contacts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL ,
-                contact TEXT NOT NULL,
+                name TEXT NOT NULL,
+                contact TEXT NOT NULL UNIQUE,
+                gmail TEXT NOT NULL UNIQUE,
                 address TEXT
-            )
+            );
         """)
-        cur.execute("INSERT INTO contacts (name, contact, address) VALUES (?, ?, ?)",
-                    (name, contact, address))
-        conn.commit()
-        conn.close()
-
-        tk.Label(form, text="Contact saved!", fg="green", bg="white").pack(pady=10)
-
-    tk.Button(form, text="Save", command=save_contact, bg="#42adf0", fg="white").pack(pady=20)
-
-
-
+        try:
+            cur.execute("INSERT INTO contacts (name, contact, gmail, address) VALUES (?, ?, ?, ?)",
+                        (name, contact, gmail, address))
+            conn.commit()
+            conn.close()
+            message_label.config(text="Contact saved successfully!", fg="green")
+        except sqlite3.IntegrityError:
+            message_label.config(text="Duplicate contact or Gmail already exists!", fg="red")
+    save_btn.config(command=save_contact)
