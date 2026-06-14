@@ -1,5 +1,6 @@
 import tkinter as tk
 from modules import imgLoad
+from modules import add_contact
 
 def add_hover_effect(widget, hover_bg="lightblue", hover_fg="black", normal_bg="white", normal_fg="black"):
     widget.bind("<Enter>", lambda e: widget.config(bg=hover_bg, fg=hover_fg))
@@ -22,6 +23,8 @@ def leftSideBar(rt, icons):
     for text, value in menu_items.items():
         btn = tk.Button(sidebar,text=text,image=value, compound="left",font=("poppins", 10),relief="flat",bg="white",fg="black",anchor="w",padx=20,pady=8)
         add_hover_effect(btn, hover_bg="#42adf0", hover_fg="white")
+        if text == "Add Contact":
+            btn.config(command=add_contact.open_add_contact_window)
         btn.pack(fill="x", pady=2)
 
 def rightSideBar(rt, rtc_ico):
