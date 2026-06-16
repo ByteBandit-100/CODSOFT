@@ -1,6 +1,21 @@
 import tkinter as tk
+from tkinter import ttk
 from modules import imgLoad
 from modules import add_contact
+import sqlite3
+
+def load_contacts():
+    conn = sqlite3.connect("contacts_data.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, name, contact, gmail, address
+        FROM contacts
+        ORDER BY id DESC
+    """)
+    records = cursor.fetchall()
+    print(records)
+    conn.close()
+    return records
 
 def add_hover_effect(widget, hover_bg="lightblue", hover_fg="black", normal_bg="white", normal_fg="black"):
     widget.bind("<Enter>", lambda e: widget.config(bg=hover_bg, fg=hover_fg))
@@ -28,7 +43,8 @@ def leftSideBar(rt, icons):
         btn.pack(fill="x", pady=2)
 
 def rightSideBar(rt, rtc_ico):
-    #top cards
+
+    # Dashboard Cards
     cards = tk.Frame(rt, bg="#FFFFFF")
     cards.pack(fill="x", padx=25, pady=10)
 
@@ -40,20 +56,108 @@ def rightSideBar(rt, rtc_ico):
     ]
 
     for text, value in stats:
-        card = tk.Frame(cards, bg="#FFFFFF", width=130, height=100, pady=5, bd=0, relief="solid")
+
+        card = tk.Frame(
+            cards,
+            bg="#FFFFFF",
+            width=130,
+            height=100,
+            pady=5
+        )
+
         card.pack(side="left", padx=10)
         card.pack_propagate(False)
-        culr="black"
-        match text:
-            case "Total Contacts": culr="#1b7dfa"
-            case "Today Added": culr="#a20cc3"
-            case "This Month": culr="#1b7dfa"
-            case "Favorites": culr="#a69e1a"
-        tk.Label(card,text=text,font=("poppins",9, "bold"),bg="#FFFFFF", fg=culr).pack(pady=2)
-        img = rtc_ico[text]
-        tk.Label(card, image= img, compound="center",bg="#FFFFFF").pack()
 
-        tk.Label(card,text=value,font=("poppins", 8, "bold"),bg="#FFFFFF").pack()
+        color = "#1b7dfa"
+
+        if text == "Today Added":
+            color = "#a20cc3"
+
+        elif text == "Favorites":
+            color = "#a69e1a"
+
+        tk.Label(
+            card,
+            text=text,
+            font=("poppins", 9, "bold"),
+            bg="#FFFFFF",
+            fg=color
+        ).pack(pady=2)
+
+        tk.Label(
+            card,
+            image=rtc_ico[text],
+            bg="#FFFFFF"
+        ).pack()
+
+        tk.Label(
+            card,
+            text=value,
+            font=("poppins", 10, "bold"),
+            bg="#FFFFFF"
+        ).pack()
+
+    # ======================
+    # TABLE SECTION
+    # ======================
+
+    table_frame = tk.Frame(
+        rt,
+        bg="white",
+        bd=1,
+        relief="solid"
+    )
+
+    table_frame.pack(
+        fill="both",
+        expand=True,
+        padx=20,
+        pady=10
+    )
+
+    tk.Label(
+        table_frame,
+        text="Recent Contacts",
+        font=("poppins", 14, "bold"),
+        bg="white"
+    ).pack(anchor="w", padx=10, pady=5)
+
+    columns = (
+        "ID",
+        "Name",
+        "Phone",
+        "Email",
+        "Address"
+    )
+
+    tree = ttk.Treeview(
+        table_frame,
+        columns=columns,
+        show="headings"
+    )
+
+    # Set sizes after headings
+    tree.column("ID", width=50)
+    tree.column("Name", width=150)
+    tree.column("Phone", width=100)
+    tree.column("Email", width=150)
+    tree.column("Address", width=200)
+
+    for col in columns:
+        tree.heading(col, text=col)
+
+    tree.pack(
+        fill="both",
+        expand=True,
+        padx=10,
+        pady=10
+    )
+
+    contact_data = load_contacts()
+
+
+    for row in contact_data:
+        tree.insert("", "end", values=row)
 
 def homeWindow(rt, icons,rtc_icons, app_icon):
     label = tk.Label(rt, text=" Contact Book", image=app_icon, bg="white",
