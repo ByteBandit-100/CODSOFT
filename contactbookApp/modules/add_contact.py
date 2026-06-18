@@ -33,7 +33,7 @@ def open_add_contact_window():
     def save_contact():
         name = name_entry.get().strip()
         contact = contact_entry.get().strip()
-        gmail = gmail_entry.get().strip()
+        gmail = gmail_entry.get().strip() or None
         address = address_entry.get().strip()
         if not name:
             message_label.config(text="Name is required!", fg="red")
@@ -57,7 +57,7 @@ def open_add_contact_window():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 contact TEXT NOT NULL UNIQUE,
-                gmail TEXT NOT NULL UNIQUE,
+                gmail TEXT UNIQUE,
                 address TEXT
             );
         """)
@@ -65,8 +65,9 @@ def open_add_contact_window():
             cur.execute("INSERT INTO contacts (name, contact, gmail, address) VALUES (?, ?, ?, ?)",
                         (name, contact, gmail, address))
             conn.commit()
-            conn.close()
             message_label.config(text="Contact saved successfully!", fg="green")
         except sqlite3.IntegrityError:
             message_label.config(text="Duplicate contact or Gmail already exists!", fg="red")
+        finally:
+            conn.close()
     save_btn.config(command=save_contact)
